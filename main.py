@@ -79,25 +79,6 @@ def toggle_theme(request: Request):
     )
 
     return response
-
-from fastapi import FastAPI, Request, Depends, Form
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
-from sqlalchemy.orm import Session
-
-from database import engine, get_db
-from models import Base, Contact
-
-app = FastAPI()
-
-Base.metadata.create_all(bind=engine)
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-templates = Jinja2Templates(directory="templates")
-
-
 # Common function for theme
 def get_theme(request: Request):
     return request.cookies.get("theme", "light")
@@ -114,23 +95,6 @@ def home(request: Request, success: bool = False):
             "success": success
         }
     )
-
-# THEME ROUTE
-@app.post("/toggle-theme")
-def toggle_theme(request: Request):
-    current_theme = get_theme(request)
-
-    new_theme = "dark" if current_theme == "light" else "light"
-
-    response = RedirectResponse(
-        url=request.headers.get("referer", "/"),
-        status_code=303
-    )
-
-    response.set_cookie(key="theme", value=new_theme)
-
-    return response
-
 
 # ABOUT ROUTE
 @app.get("/about")
